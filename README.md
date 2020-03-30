@@ -1,15 +1,13 @@
 
 # covid-sanity
 
-This small flask app organizes bioarxiv papers about COVID-19 and makes them searchable, sortable, etc.
+This project organizes COVID-19 SARS-CoV-2 preprints from medRxiv and bioRxiv. The raw data comes from the [bioRxiv](https://connect.biorxiv.org/relate/content/181) page, but this project makes the data searchable, sortable, etc. The "most similar" search uses an exemplar SVM trained on tfidf feature vectors from the abstracts of these papers. The project is running live on [biomed-sanity.com](http://biomed-sanity.com/). (I could not register covid-sanity.com because the term is "protected")
 
-It is running live on [biomed-sanity.com](http://biomed-sanity.com/). I could not register covid-sanity.com because the term is "protected".
+![user interface](https://raw.github.com/karpathy/covid-sanity/master/ui.png)
 
-Effectively a search interface on top of the [bioarxiv page](https://connect.biorxiv.org/relate/content/181)
+Since I can't assess the quality of the similarity search I welcome any opinions on some of the hyperparameters. For instance, the parameter `C` in the SVM training and the size of the feature vector `max_features` (currently set at 2,000) dramatically impact the results.
 
-Follows my previous project in spirit, [arxiv-sanity](https://github.com/karpathy/arxiv-sanity-preserver)
-
-License: MIT
+This project follows a previous one of mine in spirit, [arxiv-sanity](https://github.com/karpathy/arxiv-sanity-preserver).
 
 ## run
 
@@ -29,4 +27,6 @@ $ gunicorn3 --workers=3 serve:app --access-logfile -
 will do the trick.
 
 
+## License
 
+MIT

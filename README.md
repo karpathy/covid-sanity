@@ -14,18 +14,13 @@ This project follows a previous one of mine in spirit, [arxiv-sanity](https://gi
 As this is a flask app running it locally is straight forward. First compute the database with `run.py` and then serve:
 
 ```
+$ pip install -r requirements.txt
 $ python run.py
+$ export FLASK_APP=serve.py
 $ flask run
 ```
 
-To deploy in production I recommend NGINX and Gunicorn. After configuring NGINX in your environment something like
-
-```
-$ gunicorn3 --workers=3 serve:app --access-logfile -
-```
-
-will do the trick.
-
+To deploy in production I recommend NGINX and Gunicorn. [Linode](https://www.linode.com/) is one easy/cheap way to host the application on the internet and they have [detailed tutorials](https://www.linode.com/docs/development/python/flask-and-gunicorn-on-ubuntu/) one can follow.
 
 ## License
 

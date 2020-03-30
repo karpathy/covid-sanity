@@ -9,18 +9,43 @@ Since I can't assess the quality of the similarity search I welcome any opinions
 
 This project follows a previous one of mine in spirit, [arxiv-sanity](https://github.com/karpathy/arxiv-sanity-preserver).
 
-## run
+## dev
 
-As this is a flask app running it locally is straight forward. First compute the database with `run.py` and then serve:
+As this is a flask app running it locallyon your own computer is relatively straight forward. First compute the database with `run.py` and then serve:
 
-```
+```bash
 $ pip install -r requirements.txt
 $ python run.py
 $ export FLASK_APP=serve.py
 $ flask run
 ```
 
-To deploy in production I recommend NGINX and Gunicorn. [Linode](https://www.linode.com/) is one easy/cheap way to host the application on the internet and they have [detailed tutorials](https://www.linode.com/docs/development/python/flask-and-gunicorn-on-ubuntu/) one can follow.
+## prod
+
+To deploy in production I recommend NGINX and Gunicorn. [Linode](https://www.linode.com/) is one easy/cheap way to host the application on the internet and they have [detailed tutorials](https://www.linode.com/docs/development/python/flask-and-gunicorn-on-ubuntu/) one can follow to set this up.
+
+I run the server in a screen session and have a very simple script `pull.sh` that updates the database:
+
+```bash
+#!/bin/bash
+
+# print time
+now=$(TZ=":US/Pacific" date)
+echo "Time: $now"
+# active directory
+cd /root/covid-sanity
+# pull the latest papers
+python run.py
+# restart the gracefully
+ps aux |grep gunicorn |grep app | awk '{ print $2 }' |xargs kill -HUP
+```
+
+And in my `crontab -l` I make sure this runs every 1 hour, for example:
+
+```bash
+# m h  dom mon dow   command
+3 * * * * /root/covid-sanity/pull.sh > /root/cron.log 2>&1
+```
 
 ## License
 

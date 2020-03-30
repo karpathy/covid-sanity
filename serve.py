@@ -17,7 +17,7 @@ with open('jall.json', 'r') as f:
 
 # load computed paper similarities
 with open('sim.json', 'r') as f:
-    sim = json.load(f)
+    sim_dict = json.load(f)
 
 # load search dictionary for each paper
 with open('search.json', 'r') as f:
@@ -60,7 +60,7 @@ def sim(doi_prefix=None, doi_suffix=None):
     if pix is None:
         papers = []
     else:
-        sim_ix, match = zip(*sim[str(pix)][:40]) # indices of closest papers
+        sim_ix, match = zip(*sim_dict[str(pix)][:40]) # indices of closest papers
         papers = [jall['rels'][cix] for cix in sim_ix]
     gvars = {'sort_order': 'sim'}
     context = {'papers': papers, 'gvars': gvars}

@@ -14,7 +14,7 @@ from sklearn import svm
 
 jstr = requests.get('https://connect.biorxiv.org/relate/collection_json.php?grp=181')
 jall = jstr.json()
-print("writing jall.json")
+print(f"writing jall.json with {len(jall['rels'])} papers")
 json.dump(jall, open('jall.json', 'w'))
 
 # compute tfidf features with scikit learn

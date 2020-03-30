@@ -16,7 +16,7 @@ with open('jall.json', 'r') as f:
     jall = json.load(f)
 
 # load computed paper similarities
-with open('sim.json', 'r') as f:
+with open('svm_sim.json', 'r') as f:
     sim_dict = json.load(f)
 
 # load search dictionary for each paper

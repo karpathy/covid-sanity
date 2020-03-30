@@ -8,6 +8,7 @@ import numpy as np
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction import stop_words
+from sklearn import svm
 
 # -----------------------------------------------------------------------------
 
@@ -37,11 +38,28 @@ sim = {}
 ntake = 40
 n = IX.shape[0]
 for i in range(n):
-    ixc = [int(IX[i,j]) for j in range(ntake)] # +1 to skip the CLOSEST element (ourselves :))
+    ixc = [int(IX[i,j]) for j in range(ntake)]
     ds = [int(D[i,IX[i,j]]*1000) for j in range(ntake)]
     sim[i] = list(zip(ixc, ds))
 print("writing sim.json")
 json.dump(sim, open('sim.json', 'w'))
+
+# use exemplar SVM to build similarity instead
+print("fitting SVMs per paper")
+svm_sim = {}
+ntake = 40
+for i in range(n):
+    # everything is 0 except the current index - i.e. "exemplar svm"
+    y = np.zeros(X.shape[0])
+    y[i] = 1
+    clf = svm.LinearSVC(class_weight='balanced', verbose=False, max_iter=10000, tol=1e-4, C=1.0)
+    clf.fit(X,y)
+    s = clf.decision_function(X)
+    IX = np.argsort(-s)
+    ixc = [int(IX[j]) for j in range(ntake)]
+    ds = [int(D[i,IX[j]]*1000) for j in range(ntake)]
+    svm_sim[i] = list(zip(ixc, ds))
+json.dump(svm_sim, open('svm_sim.json', 'w'))
 
 # construct a reverse index for suppoorting search
 vocab = v.vocabulary_

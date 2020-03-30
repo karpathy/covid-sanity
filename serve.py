@@ -52,7 +52,7 @@ def search():
     papers = [x[1] for x in scores if x[0] > 0]
     if len(papers) > 40:
         papers = papers[:40]
-    gvars = {'sort_order': 'search', 'search_query': q}
+    gvars = {'sort_order': 'search', 'search_query': q, 'num_papers': len(jall['rels'])}
     context = {'papers': papers, 'gvars': gvars}
     return render_template('index.html', **context)
 
@@ -65,13 +65,13 @@ def sim(doi_prefix=None, doi_suffix=None):
     else:
         sim_ix, match = zip(*sim_dict[str(pix)][:40]) # indices of closest papers
         papers = [jall['rels'][cix] for cix in sim_ix]
-    gvars = {'sort_order': 'sim'}
+    gvars = {'sort_order': 'sim', 'num_papers': len(jall['rels'])}
     context = {'papers': papers, 'gvars': gvars}
     return render_template('index.html', **context)
 
 @app.route('/')
 def main():
     papers = jall['rels'][:40]
-    gvars = {'sort_order': 'latest'}
+    gvars = {'sort_order': 'latest', 'num_papers': len(jall['rels'])}
     context = {'papers': papers, 'gvars': gvars}
     return render_template('index.html', **context)

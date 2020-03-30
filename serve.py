@@ -11,6 +11,26 @@ from flask import render_template
 
 app = Flask(__name__)
 
+# load raw paper data
+with open('jall.json', 'r') as f:
+    jall = json.load(f)
+
+# load computed paper similarities
+with open('sim.json', 'r') as f:
+    sim = json.load(f)
+
+# load search dictionary for each paper
+with open('search.json', 'r') as f:
+    search_dict = json.load(f)
+
+# do some precomputation since we're going to be doing lookups of doi -> doc index
+doi_to_ix = {}
+for i, j in enumerate(jall['rels']):
+    doi_to_ix[j['rel_doi']] = i
+
+# -----------------------------------------------------------------------------
+# routes below
+
 @app.route("/search", methods=['GET'])
 def search():
     q = request.args.get('q', '') # get the search request
@@ -27,8 +47,8 @@ def search():
         scores.append((score, jall['rels'][i]))
     scores.sort(reverse=True, key=lambda x: x[0]) # descending
     papers = [x[1] for x in scores if x[0] > 0]
-    if len(papers) > args.num_results:
-        papers = papers[:args.num_results]
+    if len(papers) > 40:
+        papers = papers[:40]
     gvars = {'sort_order': 'search', 'search_query': q}
     context = {'papers': papers, 'gvars': gvars}
     return render_template('index.html', **context)
@@ -40,7 +60,7 @@ def sim(doi_prefix=None, doi_suffix=None):
     if pix is None:
         papers = []
     else:
-        sim_ix, match = zip(*sim[str(pix)][:args.num_results]) # indices of closest papers
+        sim_ix, match = zip(*sim[str(pix)][:40]) # indices of closest papers
         papers = [jall['rels'][cix] for cix in sim_ix]
     gvars = {'sort_order': 'sim'}
     context = {'papers': papers, 'gvars': gvars}
@@ -48,50 +68,7 @@ def sim(doi_prefix=None, doi_suffix=None):
 
 @app.route('/')
 def main():
-    papers = jall['rels'][:args.num_results]
+    papers = jall['rels'][:40]
     gvars = {'sort_order': 'latest'}
     context = {'papers': papers, 'gvars': gvars}
     return render_template('index.html', **context)
-
-# -----------------------------------------------------------------------------
-if __name__ == '__main__':
-
-    # process input arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--prod', dest='prod', action='store_true', help='run in prod?')
-    parser.add_argument('-n', '--num_results', type=int, default=40, help='number of results per query')
-    parser.add_argument('--port', dest='port', type=int, default=5000, help='port to serve on')
-    parser.add_argument('--https', dest='https', type=int, default=0, help='use https?')
-    args = parser.parse_args()
-    print(args)
-
-    # load raw paper data
-    with open('jall.json', 'r') as f:
-        jall = json.load(f)
-
-    # load computed paper similarities
-    with open('sim.json', 'r') as f:
-        sim = json.load(f)
-
-    # load search dictionary for each paper
-    with open('search.json', 'r') as f:
-        search_dict = json.load(f)
-
-    # do some precomputation since we're going to be doing lookups of doi -> doc index
-    doi_to_ix = {}
-    for i, j in enumerate(jall['rels']):
-        doi_to_ix[j['rel_doi']] = i
-
-    if args.prod:
-        from tornado.wsgi import WSGIContainer
-        from tornado.httpserver import HTTPServer
-        from tornado.ioloop import IOLoop
-        from tornado.log import enable_pretty_logging
-        enable_pretty_logging()
-        http_server = HTTPServer(WSGIContainer(app))
-        http_server.listen(args.port)
-        IOLoop.instance().start()
-    else:
-        print('starting flask!')
-        app.debug = False
-        app.run(port=args.port, host='0.0.0.0')

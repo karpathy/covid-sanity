@@ -5,7 +5,7 @@ Simple flask server for the interface
 import json
 import argparse
 
-from flask import Flask, request
+from flask import Flask, request, redirect, url_for
 from flask import render_template
 # -----------------------------------------------------------------------------
 
@@ -34,6 +34,9 @@ for i, j in enumerate(jall['rels']):
 @app.route("/search", methods=['GET'])
 def search():
     q = request.args.get('q', '') # get the search request
+    if not q:
+        return redirect(url_for('main')) # if someone just hits enter with empty field
+
     qparts = q.lower().strip().split() # split by spaces
 
     # accumulate scores

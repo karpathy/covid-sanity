@@ -3,10 +3,10 @@ Simple flask server for the interface
 """
 
 import json
-import argparse
 
 from flask import Flask, request, redirect, url_for
 from flask import render_template
+
 # -----------------------------------------------------------------------------
 
 app = Flask(__name__)
@@ -16,7 +16,7 @@ with open('jall.json', 'r') as f:
     jall = json.load(f)
 
 # load computed paper similarities
-with open('svm_sim.json', 'r') as f:
+with open('sim_tfidf_svm.json', 'r') as f:
     sim_dict = json.load(f)
 
 # load search dictionary for each paper
@@ -63,7 +63,7 @@ def sim(doi_prefix=None, doi_suffix=None):
     if pix is None:
         papers = []
     else:
-        sim_ix, match = zip(*sim_dict[str(pix)][:40]) # indices of closest papers
+        sim_ix = sim_dict[pix]
         papers = [jall['rels'][cix] for cix in sim_ix]
     gvars = {'sort_order': 'sim', 'num_papers': len(jall['rels'])}
     context = {'papers': papers, 'gvars': gvars}

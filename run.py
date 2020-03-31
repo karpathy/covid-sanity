@@ -59,18 +59,17 @@ def calculate_sim_svm(X, ntake=40):
 
 
 def build_search_index(rels, v):
-    from sklearn.feature_extraction import stop_words
+    from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 
     # construct a reverse index for suppoorting search
     vocab = v.vocabulary_
     idf = v.idf_
-    english_stop_words = stop_words.ENGLISH_STOP_WORDS
     punc = "'!\"#$%&\'()*+,./:;<=>?@[\\]^_`{|}~'" # removed hyphen from string.punctuation
     trans_table = {ord(c): None for c in punc}
 
     def makedict(s, forceidf=None):
         words = set(s.lower().translate(trans_table).strip().split())
-        words = set(w for w in words if len(w) > 1 and (not w in english_stop_words))
+        words = set(w for w in words if len(w) > 1 and (not w in ENGLISH_STOP_WORDS))
         idfd = {}
         for w in words: # todo: if we're using bigrams in vocab then this won't search over them
             if forceidf is None:

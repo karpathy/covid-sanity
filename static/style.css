@@ -50,6 +50,10 @@ h1 {
     text-decoration: none;
 }
 
+.rel_authors {
+    font-weight: 300;
+}
+
 .dllinks {
     border-radius: 5px;
     padding: 5px;
@@ -57,17 +61,18 @@ h1 {
     text-align: right;
 }
 
-.action {
+.metadata {
     font-size: 16px;
     padding: 5px;
-    margin: 0 5px 0 5px;
-    cursor: pointer;
     display: inline-block;
+}
+.action {
+    cursor: pointer;
     text-decoration: underline;
 }
 
-.rel_doi {
-    font-weight: 300;
+.rel_date {
+    color: #900;
 }
 
 .rel_title {

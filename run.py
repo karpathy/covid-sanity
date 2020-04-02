@@ -2,6 +2,7 @@
 Run to update all the database json files that can be served from the website
 """
 
+from tqdm import tqdm
 import json
 import requests
 import numpy as np
@@ -73,7 +74,7 @@ def calculate_sim_svm(X, ntake=40):
     n, d = X.shape
     IX = np.zeros((n, ntake), dtype=np.int64)
     print(f"training {n} svms for each paper...")
-    for i in range(n):
+    for i in tqdm(range(n)):
         # set all examples as negative except this one
         y = np.zeros(X.shape[0], dtype=np.float32)
         y[i] = 1

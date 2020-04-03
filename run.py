@@ -33,34 +33,6 @@ def calculate_tfidf_features(rels, max_features=5000, max_df=1.0, min_df=3):
     return X, v
 
 
-def calculate_bert_features(rels):
-    """ use SciBERT to compute the embeddings instead of tfidf """
-    import torch
-    from transformers import BertTokenizer, BertModel
-
-    def embed_text(text, model):
-        enc = tokenizer.encode(text)
-        if len(enc) > 512:
-            enc = enc[:512] # truncate to max length ;(
-        input_ids = torch.tensor(enc).unsqueeze(0)  # create batch size 1
-        with torch.no_grad():
-            last_hidden_states, pooled = model(input_ids)
-        return pooled.view(-1) # flatten since batch size is 1
-
-    model_version = 'scibert_scivocab_uncased' # https://github.com/allenai/scibert/blob/master/README.md
-    model = BertModel.from_pretrained(model_version)
-    tokenizer = BertTokenizer.from_pretrained(model_version, do_lower_case=True)
-
-    n = len(rels)
-    X = np.empty((n, 768), dtype=np.float32)
-    for i, p in enumerate(rels):
-        X[i] = embed_text(p['rel_title'] + '. ' + p['rel_abs'], model).numpy()
-        if i % 100 == 0:
-            print(i, n)
-    X /= np.sqrt((X**2).sum(axis=1, keepdims=True)) # L2 normalize the embedding vector
-    return X
-
-
 def calculate_sim_dot_product(X, ntake=40):
     """ take X (N,D) features and for each index return closest ntake indices via dot product """
     S = np.dot(X, X.T)
@@ -136,22 +108,10 @@ if __name__ == '__main__':
     jall = jstr.json()
     write_json(jall, 'jall.json', f"{len(jall['rels'])} papers")
 
-    # calculate similarities using various techniques
+    # calculate feature vectors for all abstracts and keep track of most similar other papers
     X, v = calculate_tfidf_features(jall['rels'])
-    # similarity using simple dot product on tfidf
-    sim_tfidf = calculate_sim_dot_product(X)
-    write_json(sim_tfidf, 'sim_tfidf_dot.json')
-    # similarity using an exemplar svm on tfidf
     sim_svm = calculate_sim_svm(X)
     write_json(sim_svm, 'sim_tfidf_svm.json')
-
-    # disable because the results aren't super great? ¯\_(ツ)_/¯
-    # # use bert features
-    # X = calculate_bert_features(jall['rels'])
-    # sim_bert_dot = calculate_sim_dot_product(X)
-    # write_json(sim_bert_dot, 'sim_bert_dot.json')
-    # sim_bert_svm = calculate_sim_svm(X)
-    # write_json(sim_bert_svm, 'sim_bert_svm.json')
 
     # calculate the search index to support search
     search_dict = build_search_index(jall['rels'], v)

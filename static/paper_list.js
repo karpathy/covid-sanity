@@ -15,35 +15,24 @@ const Tweet = props => {
   )
 }
 
-class Tweets extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      collapsed: true,
-      max_items: 10,
-    };
-  }
-
-  render() {
-    const tlist = this.props.tweets;
-    if(tlist.length === 0) {
-      // return an empty element if no tweets are present
-      return (null);
-    } else {
-      if(this.state.collapsed) {
-        // show just summary statistic of the tweets
-        return (
-          <div class='rel_tweets_summary' onClick={() => this.setState({collapsed: false})}>{tlist.length} tweets</div>
+const Tweets = props => {
+  const [collapsed, setCollapsed] = React.useState(true);
+  return (
+    //Make sure there are tweets.
+    props.tweets.length > 0 && (
+      collapsed ? (
+          //Show just the summary statistics.
+          <div class='rel_tweets_summary' onClick={() => setCollapsed(false)}>
+            {props.tweets.length + " tweets"}
+          </div>
+        ) : (
+          //Show tweets in expanded view.
+          <div class='rel_tweets'>
+            {props.tweets.map((jtweet, ix) => <Tweet key={ix} tweet={jtweet} />)}
+          </div>
         )
-      } else {
-        // show tweets in expanded view
-        const tlist_comps = tlist.map((jtweet, ix) => <Tweet key={ix} tweet={jtweet} />);
-        return (
-          <div class='rel_tweets'>{tlist_comps}</div>
-        );
-      }
-    }
-  }
+    )
+  );
 }
 
 const Paper = props => {
@@ -82,4 +71,4 @@ const PaperList = props => {
   )
 }
 
-ReactDOM.render(<PaperList papers={papers}/>, document.getElementById('wrap'));
+ReactDOM.render(<PaperList papers={papers} />, document.getElementById('wrap'));

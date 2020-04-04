@@ -31,6 +31,13 @@ for i, j in enumerate(jall['rels']):
 # -----------------------------------------------------------------------------
 # routes below
 
+def default_context(papers, **kwargs):
+    """ build a default context for the frontend """
+    gvars = {'num_papers': len(jall['rels'])}
+    gvars.update(kwargs) # insert anything else from kwargs into global context
+    context = {'papers': papers, 'gvars': gvars}
+    return context
+
 @app.route("/search", methods=['GET'])
 def search():
     q = request.args.get('q', '') # get the search request
@@ -52,8 +59,7 @@ def search():
     papers = [x[1] for x in scores if x[0] > 0]
     if len(papers) > 40:
         papers = papers[:40]
-    gvars = {'sort_order': 'search', 'search_query': q, 'num_papers': len(jall['rels'])}
-    context = {'papers': papers, 'gvars': gvars}
+    context = default_context(papers, sort_order='search', search_query=q)
     return render_template('index.html', **context)
 
 @app.route('/sim/<doi_prefix>/<doi_suffix>')
@@ -65,13 +71,11 @@ def sim(doi_prefix=None, doi_suffix=None):
     else:
         sim_ix = sim_dict[pix]
         papers = [jall['rels'][cix] for cix in sim_ix]
-    gvars = {'sort_order': 'sim', 'num_papers': len(jall['rels'])}
-    context = {'papers': papers, 'gvars': gvars}
+    context = default_context(papers, sort_order='sim')
     return render_template('index.html', **context)
 
 @app.route('/')
 def main():
     papers = jall['rels'][:40]
-    gvars = {'sort_order': 'latest', 'num_papers': len(jall['rels'])}
-    context = {'papers': papers, 'gvars': gvars}
+    context = default_context(papers, sort_order='latest')
     return render_template('index.html', **context)

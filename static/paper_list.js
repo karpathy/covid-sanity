@@ -17,20 +17,18 @@ const Tweet = props => {
 
 const Tweets = props => {
   const [collapsed, setCollapsed] = React.useState(true);
-  const maxItems = 10;
-  const tweetsList = props.tweets.slice(0, maxItems + 1); //Ignore excess tweets
   return (
     //Make sure there are tweets.
-    tweetsList.length > 0 && (
+    props.tweets.length > 0 && (
       collapsed ? (
           //Show just the summary statistics.
           <div class='rel_tweets_summary' onClick={() => setCollapsed(false)}>
-            {tweetsList.length + " tweets"}
+            {props.tweets.length + " tweets"}
           </div>
         ) : (
           //Show tweets in expanded view.
           <div class='rel_tweets'>
-            {tweetsList.map((jtweet, ix) => <Tweet key={ix} tweet={jtweet} />)}
+            {props.tweets.map((jtweet, ix) => <Tweet key={ix} tweet={jtweet} />)}
           </div>
         )
     )

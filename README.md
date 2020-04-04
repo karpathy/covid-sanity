@@ -47,6 +47,10 @@ And in my `crontab -l` I make sure this runs every 1 hour, for example:
 3 * * * * /root/covid-sanity/pull.sh > /root/cron.log 2>&1
 ```
 
+## seeing tweets
+
+Seeing the tweets for each paper is purely optional. To achieve this you need to follow the instructions on setting up [python-twitter API](https://python-twitter.readthedocs.io/en/latest/) and then write your secrets into a file `twitter.txt`, which get loaded in `twitter_daemon.py`. I run this daemon process in a screen session where it pulls tweets for every paper in circles and saves the results.
+
 ## License
 
 MIT

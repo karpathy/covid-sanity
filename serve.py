@@ -2,6 +2,7 @@
 Simple flask server for the interface
 """
 
+import os
 import json
 
 from flask import Flask, request, redirect, url_for
@@ -23,13 +24,23 @@ with open('sim_tfidf_svm.json', 'r') as f:
 with open('search.json', 'r') as f:
     search_dict = json.load(f)
 
+# OPTIONAL: load tweet dictionary, if twitter_daemon has run
+tweets_dict = {}
+if os.path.isfile('tweets.json'):
+    with open('tweets.json', 'r') as f:
+        tweets_dict = json.load(f)
+# decorate each paper with tweets
+for j in jall['rels']:
+    j['tweets'] = tweets_dict.get(j['rel_doi'], [])
+    j['tweets'].sort(key=lambda t: t['followers'], reverse=True)
+
 # do some precomputation since we're going to be doing lookups of doi -> doc index
 doi_to_ix = {}
 for i, j in enumerate(jall['rels']):
     doi_to_ix[j['rel_doi']] = i
 
 # -----------------------------------------------------------------------------
-# routes below
+# few helper functions for routes
 
 def default_context(papers, **kwargs):
     """ build a default context for the frontend """
@@ -37,6 +48,9 @@ def default_context(papers, **kwargs):
     gvars.update(kwargs) # insert anything else from kwargs into global context
     context = {'papers': papers, 'gvars': gvars}
     return context
+
+# -----------------------------------------------------------------------------
+# routes below
 
 @app.route("/search", methods=['GET'])
 def search():

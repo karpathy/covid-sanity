@@ -1,8 +1,24 @@
 'use strict';
 
+const Tweet = props => {
+  const t = props.tweet;
+  const turl = "https://twitter.com/" + t.name + "/status/" + t.id;
+  return (
+    <div class='tweet'>
+      <a href={turl}><img src={t.image_url}></img></a>
+      <div class='meta'>
+        <span class="following">{t.followers}</span>
+        <span class="uname"><a href={turl}>{t.name}</a></span>
+        <span class="text">{t.text}</span>
+      </div>
+    </div>
+  )
+}
+
 const Paper = props => {
   const p = props.paper
   const url = p.rel_link + '.full.pdf';
+  const tlst = p.tweets.map((jtweet, ix) => <Tweet key={ix} tweet={jtweet} />);
   return (
     <div class={'rel_paper ' + p.rel_site}>
       <div class='dllinks'>
@@ -13,6 +29,7 @@ const Paper = props => {
       <div class='rel_title'><a href={p.rel_link}>{p.rel_title}</a></div>
       <div class='rel_authors'>{p.rel_authors}</div>
       <div class='rel_abs'>{p.rel_abs}</div>
+      <div class='rel_tweets'>{tlst}</div>
     </div>
   )
 }

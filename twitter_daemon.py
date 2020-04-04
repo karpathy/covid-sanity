@@ -1,7 +1,11 @@
 """
 Continuously iterates over existing database and pulls in tweets for each paper.
+Intended to be run in a screen session forver alongside the flask server, which
+will pull in its results every time it gets reset for updates.
 """
 
+import os
+import sys
 import time
 import json
 import urllib
@@ -34,7 +38,14 @@ def get_tweets(j):
     exclude_replies = '%20-filter%3Areplies'
     exclude_retweets = '%20-filter%3Aretweets'
     suffix = exclude_replies + exclude_retweets
-    results = api.GetSearch(raw_query="q=%s%s&result_type=recent&count=100" % (q, suffix)) # rate limit: 1 per 5 seconds
+
+    try:
+        results = api.GetSearch(raw_query="q=%s%s&result_type=recent&count=100" % (q, suffix))
+    except: # catches everything for now, may want to handle surgigcal cases later
+        e = sys.exc_info()[0]
+        print("Oh oh, trouble getting tweets for a paper from the API:")
+        print(e)
+        return None
 
     # extract just what we need from tweets and not much more
     jtweets = [process_tweet(r) for r in results]
@@ -49,12 +60,30 @@ def get_tweets(j):
 
 if __name__ == '__main__':
 
+    # init tweets, attempt to warm start from existing data if any
+    tweets = {}
+    if os.path.isfile('tweets.json'):
+        with open('tweets.json', 'r') as f:
+            tweets = json.load(f)
+        print(f"warm starting from existing tweets.json, found tweets for {len(tweets)} papers.")
+
+    # init twitter api
     keys = get_api_keys()
     api = twitter.Api(consumer_key=keys[0],
                       consumer_secret=keys[1],
                       access_token_key=keys[2],
                       access_token_secret=keys[3],
                       tweet_mode='extended')
+
+    def update(i, j):
+        """ update the tweets for paper index i and json dict j """
+        jtweets = get_tweets(j)
+        if jtweets is not None:
+            tweets[j['rel_doi']] = jtweets
+            write_json(tweets, 'tweets.json') # update the database
+            print('processed index %d, found %d tweets for %s' % (i, len(jtweets), j['rel_link']))
+        # rate limit is 180 calls per 5 minutes, or 1 call per 5 seconds. so sleep 7 for safety
+        time.sleep(7)
 
     # run forever
     while True:
@@ -63,16 +92,19 @@ if __name__ == '__main__':
         with open('jall.json', 'r') as f:
             jall = json.load(f)
 
-        # get all tweets for all papers
-        tweets = {}
-        for i, j in enumerate(jall['rels']):
-            jtweets = get_tweets(j)
-            tweets[j['rel_doi']] = jtweets
-            print('%d/%d: found %d tweets for %s' % (i+1, len(jall['rels']), len(jtweets), j['rel_link']))
-            # rate limit is 180 calls per 5 minutes, or 1 call per 5 seconds. so sleep 7
-            time.sleep(10)
+        """
+        we want to update all papers in the database but we want to also prioritize
+        the recent papers because they probably experience the most chatter and updates.
+        so we work in chunks of e.g. 100 and iteratively fetch tweets for the next 100 old
+        papers and then again 100 of the new papers, etc. This way we keep updating the new
+        papers relatively frequently.
+        """
+        chunk_size = 100
+        assert chunk_size < len(jall['rels'])
+        for i1, j1 in enumerate(jall['rels']):
+            if i1 > chunk_size and i1 % chunk_size == 0:
+                for i2, j2 in enumerate(jall['rels'][:chunk_size]):
+                    update(i2, j2)
+            update(i1, j1)
 
-        # save to file when done
-        write_json(tweets, 'tweets.json')
-        print('-'*80)
-
+        time.sleep(0.5) # safety pin

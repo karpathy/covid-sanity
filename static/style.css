@@ -95,7 +95,15 @@ h1 {
     border-radius: 5px 5px 0px 0px;
 }
 
-.rel_tweets {
+.rel_tweets_summary {
+    background-color: #EEF;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    border-radius: 5px;
+    padding: 5px;
+    margin-top: 5px;
+    cursor: pointer;
+    text-align: center;
 }
 
 .tweet {

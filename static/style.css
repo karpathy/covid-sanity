@@ -92,8 +92,63 @@ h1 {
     background-color: #EFE;
     padding: 10px;
     margin-top: 10px;
+    border-radius: 5px 5px 0px 0px;
+}
+
+.rel_tweets_summary {
+    background-color: #EEF;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    border-radius: 5px;
+    padding: 5px;
+    margin-top: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.tweet {
+    background-color: #EEF;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    border-radius: 5px;
+    padding: 5px;
+    margin-top: 5px;
+    min-height: 48px;
+}
+
+.tweet img {
+    float: left;
+    margin-right: 5px;
     border-radius: 5px;
 }
+
+.tweet .meta {
+    margin-top: 3px;
+}
+
+.tweet .following {
+    background-color: #0e4c92;
+    padding: 3px 5px 3px 5px;
+    border-radius: 3px 0px 0px 3px;
+    color: white;
+}
+
+.tweet .uname {
+    padding: 3px 5px 3px 5px;
+    background-color: #6a99d4;
+    color: white;
+    border-radius: 0px 3px 3px 0px;
+    margin-right: 5px;
+}
+
+.tweet .uname a {
+    color: white;
+}
+
+.tweet .text {
+    line-height: 18px;
+}
+
 
 #info {
     background-color: #EEF;

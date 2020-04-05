@@ -49,9 +49,7 @@ def get_tweets(j):
 
     # extract just what we need from tweets and not much more
     jtweets = [process_tweet(r) for r in results]
-
-    # ban a few simple aggregator accounts
-    banned = ['medrxivpreprint', 'biorxivpreprint', 'glycopreprint']
+    # process the ban list
     jtweets = [t for t in jtweets if t['name'] not in banned]
 
     return jtweets
@@ -74,6 +72,12 @@ if __name__ == '__main__':
                       access_token_key=keys[2],
                       access_token_secret=keys[3],
                       tweet_mode='extended')
+
+    # load a list of banned accounts
+    banned = []
+    if os.path.isfile('banned.txt'):
+        with open('banned.txt', 'r') as f:
+            banned = f.read().splitlines()
 
     def update(i, j):
         """ update the tweets for paper index i and json dict j """

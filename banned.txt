@@ -3,3 +3,7 @@ biorxivpreprint
 glycopreprint
 outbreaksci
 biorxiv_genomic
+PandemicCovid20
+BioRxivCurator
+biorxiv_bioinfo
+PromisingPreprints

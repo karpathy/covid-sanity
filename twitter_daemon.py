@@ -84,10 +84,12 @@ if __name__ == '__main__':
         jtweets = get_tweets(j)
         if jtweets is not None:
             tweets[j['rel_doi']] = jtweets
-            write_json(tweets, 'tweets.json') # update the database
+            # update the database
+            write_json(tweets, 'tweets.tmp.json')
+            os.rename('tweets.tmp.json', 'tweets.json')
             print('processed index %d, found %d tweets for %s' % (i, len(jtweets), j['rel_link']))
-        # rate limit is 180 calls per 5 minutes, or 1 call per 5 seconds. so sleep 7 for safety
-        time.sleep(7)
+        # rate limit is 180 calls per 5 minutes, or 1 call per 5 seconds. so sleep 10 for safety
+        time.sleep(10)
 
     # run forever
     while True:

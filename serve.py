@@ -15,6 +15,11 @@ app = Flask(__name__)
 # load raw paper data
 with open('jall.json', 'r') as f:
     jall = json.load(f)
+# this is crazy, I think they just recently changed this API
+# for now converting to "legacy format" as just a string as a quick fix
+for j in jall['rels']:
+    if isinstance(j['rel_authors'], list):
+        j['rel_authors'] = '; '.join(a['author_name'] for a in j['rel_authors'])
 
 # load computed paper similarities
 with open('sim_tfidf_svm.json', 'r') as f:

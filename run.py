@@ -93,7 +93,8 @@ def build_search_index(rels, v):
     search_dict = []
     for p in rels:
         dict_title = makedict(p['rel_title'], forceidf=10)
-        dict_authors = makedict(p['rel_authors'], forceidf=5)
+        rel_authors_str = ' '.join(a['author_name'] + ' ' + a['author_inst'] for a in p['rel_authors'])
+        dict_authors = makedict(rel_authors_str, forceidf=5)
         dict_summary = makedict(p['rel_abs'])
         qdict = merge_dicts([dict_title, dict_authors, dict_summary])
         search_dict.append(qdict)
